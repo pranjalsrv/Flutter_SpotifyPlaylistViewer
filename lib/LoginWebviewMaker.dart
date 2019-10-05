@@ -53,7 +53,7 @@ class _LoginWebviewState extends State<LoginWebview> {
     });
 
     // Add a listener to on url changed
-    _onUrlChanged = flutterWebviewPlugin.onUrlChanged.listen((String url) {
+    _onUrlChanged = flutterWebviewPlugin.onUrlChanged.listen((String url) async {
       if (mounted) {
         setState(() {
           print("URL changed: $url");
@@ -62,9 +62,8 @@ class _LoginWebviewState extends State<LoginWebview> {
             RegExp regExp = new RegExp("code=(.*)");
             token = regExp.firstMatch(url)?.group(1);
             _saveAuthCode(token);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => AddUserPage()),
+             Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => PlaylistPage()),
             );
             flutterWebviewPlugin.close();
           }
@@ -80,10 +79,11 @@ class _LoginWebviewState extends State<LoginWebview> {
 
     return new Hero(
         tag: "LoginButton",
-        child: WebviewScaffold(
-          url: loginUrl,
-          clearCache: true,
-          clearCookies: true,
-        ));
+        child: Scaffold(
+            body: WebviewScaffold(
+                url: loginUrl,
+                appBar: new AppBar(
+                  title: new Text("Login to Spotify"),
+                ))));
   }
 }

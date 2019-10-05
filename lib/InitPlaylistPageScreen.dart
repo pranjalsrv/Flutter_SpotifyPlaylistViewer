@@ -17,15 +17,6 @@ class _PlaylistPageState extends State<PlaylistPage>
   final mockCreatedPlaylistWidgets = <Playlist>[];
   final mockReceivedPlaylistWidgets = <Playlist>[];
 
-  final selectedMyPlaylistWidgets = <Playlist>[];
-  final selectedCreatedPlaylistWidgets = <Playlist>[];
-  final selectedReceivedPlaylistWidgets = <Playlist>[];
-
-  var isMyPlaylistSelected = List<int>();
-  var isCreatedPlaylistSelected = List<int>();
-  var isReceivedPlaylistSelected = List<int>();
-  bool selectionModeActive;
-
   TabController _tabController;
 
   static var mockMyPlaylistsName = <String>[
@@ -72,15 +63,9 @@ class _PlaylistPageState extends State<PlaylistPage>
 
   @override
   void initState() {
-    _tabController = new TabController(length: 3, vsync: this, initialIndex: 1);
-    isMyPlaylistSelected = new List<int>.filled(mockMyPlaylistsName.length, 0);
-    isCreatedPlaylistSelected =
-        new List<int>.filled(mockCreatedPlaylistsName.length, 0);
-    isReceivedPlaylistSelected =
-        new List<int>.filled(mockReceivedPlaylistsName.length, 0);
     super.initState();
+    _tabController = new TabController(length: 3, vsync: this, initialIndex: 1);
 
-    selectionModeActive = false;
     void PlaylistWidgetCreator(PlaylistName, PlaylistWdget, PlaylistAuthor) {
       for (var i = 0; i < PlaylistName.length; i++) {
         PlaylistWdget.add(Playlist(
@@ -92,43 +77,12 @@ class _PlaylistPageState extends State<PlaylistPage>
       }
     }
 
-    void SelectedPlaylistWidgetCreator(
-        PlaylistName, PlaylistWdget, PlaylistAuthor) {
-      for (var i = 0; i < PlaylistName.length; i++) {
-        PlaylistWdget.add(Playlist(
-          name: PlaylistName[i],
-          iconLocation: Icons.person,
-          author: PlaylistAuthor[i],
-          isSelected: true,
-        ));
-      }
-    }
-
     PlaylistWidgetCreator(
         mockMyPlaylistsName, mockMyPlaylistWidgets, mockMyPlaylistsAuthor);
-    PlaylistWidgetCreator(
-      mockCreatedPlaylistsName,
-      mockCreatedPlaylistWidgets,
-      mockCreatedPlaylistsAuthor,
-    );
-    PlaylistWidgetCreator(
-      mockReceivedPlaylistsName,
-      mockReceivedPlaylistWidgets,
-      mockReceivedPlaylistsAuthor,
-    );
-
-    SelectedPlaylistWidgetCreator(
-        mockMyPlaylistsName, selectedMyPlaylistWidgets, mockMyPlaylistsAuthor);
-    SelectedPlaylistWidgetCreator(
-      mockCreatedPlaylistsName,
-      selectedCreatedPlaylistWidgets,
-      mockCreatedPlaylistsAuthor,
-    );
-    SelectedPlaylistWidgetCreator(
-      mockReceivedPlaylistsName,
-      selectedReceivedPlaylistWidgets,
-      mockReceivedPlaylistsAuthor,
-    );
+    PlaylistWidgetCreator(mockCreatedPlaylistsName, mockCreatedPlaylistWidgets,
+        mockCreatedPlaylistsAuthor);
+    PlaylistWidgetCreator(mockReceivedPlaylistsName,
+        mockReceivedPlaylistWidgets, mockReceivedPlaylistsAuthor);
   }
 
   @override
@@ -137,59 +91,18 @@ class _PlaylistPageState extends State<PlaylistPage>
     super.dispose();
   }
 
-  Widget buildPlaylistWidget(PlaylistWidgetType, playlistType) {
-    Widget selectedOrNotChecker(PlaylistWidgetType, playlistType, index) {
-      if (playlistType == "My Playlist") {
-        return isMyPlaylistSelected[index] == 1
-            ? selectedMyPlaylistWidgets[index]
-            : PlaylistWidgetType[index];
-      } else if (playlistType == "Created Playlist") {
-        return isCreatedPlaylistSelected[index] == 1
-            ? selectedCreatedPlaylistWidgets[index]
-            : PlaylistWidgetType[index];
-      } else {
-        return isReceivedPlaylistSelected[index] == 1
-            ? selectedReceivedPlaylistWidgets[index]
-            : PlaylistWidgetType[index];
-      }
-    }
-
+  Widget buildPlaylistWidget(PlaylistWidgetType) {
     return ListView.builder(
-        itemBuilder: (BuildContext context, int index) => InkWell(
-            onLongPress: () {
-              selectionModeActive = true;
-            },
-            onTap: () {
-              if (selectionModeActive) {
-                if (playlistType == "My Playlist") {
-                  setState(() {
-                    if (isMyPlaylistSelected[index] == 0) {
-                      isMyPlaylistSelected[index] = 1;
-                    } else {
-                      isMyPlaylistSelected[index] = 0;
-                    }
-                  });
-                } else if (playlistType == "Created Playlist") {
-                  setState(() {
-                    isCreatedPlaylistSelected[index] = 1;
-                  });
-                } else {
-                  setState(() {
-                    isReceivedPlaylistSelected[index] = 1;
-                  });
-                }
-              }
-            },
-            child:
-                selectedOrNotChecker(PlaylistWidgetType, playlistType, index)),
+        itemBuilder: (BuildContext context, int index) =>
+            PlaylistWidgetType[index],
         itemCount: PlaylistWidgetType.length);
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget currentPlaylistDisplay(PlaylistWidgetType, playlistType) {
+    Widget currentPlaylistDisplay(PlaylistWidgetType) {
       return Expanded(
-        child: buildPlaylistWidget(PlaylistWidgetType, playlistType),
+        child: buildPlaylistWidget(PlaylistWidgetType),
       );
     }
 
@@ -204,7 +117,12 @@ class _PlaylistPageState extends State<PlaylistPage>
           elevation: 10,
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CreatePlaylistPage()));
+                PageRouteBuilder(
+                    settings: RouteSettings(isInitialRoute: true),
+                    pageBuilder: (BuildContext context,
+                        Animation<double> animation,
+                        Animation<double> secondaryAnimation) =>
+                        CreatePlaylistPage()));
           },
           icon: Icon(Icons.add),
           label: Text(
@@ -213,14 +131,12 @@ class _PlaylistPageState extends State<PlaylistPage>
           ),
         ));
 
-    Widget listOnly(PlaylistWidgetType, playlistType) {
+    Widget listOnly(PlaylistWidgetType) {
       return Container(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-            currentPlaylistDisplay(PlaylistWidgetType, playlistType)
-          ]));
+              children: [currentPlaylistDisplay(PlaylistWidgetType)]));
     }
 
     final tabBar = TabBar(
@@ -253,7 +169,7 @@ class _PlaylistPageState extends State<PlaylistPage>
           ),
         ));
 
-    /*final AddPlaylistButton = Hero(
+    final AddPlaylistButton = Hero(
         tag: "FAB",
         child: Container(
             decoration: BoxDecoration(
@@ -295,22 +211,22 @@ class _PlaylistPageState extends State<PlaylistPage>
                           ),
                         )
                       ])),
-                ))));*/
+                ))));
 
     Widget MyPlaylistsTabScaffold = Container(
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
-        child: listOnly(mockMyPlaylistWidgets, "My Playlist"));
+        child: listOnly(mockMyPlaylistWidgets));
 
     Widget CreatedPlaylistsTabScaffold = Stack(children: [
       Container(
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
-          child: listOnly(mockCreatedPlaylistWidgets, "Created Playlist")),
+          child: listOnly(mockCreatedPlaylistWidgets)),
       FAB,
     ]);
 
     Widget ReceivedPlaylistsTabScaffold = Container(
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
-        child: listOnly(mockReceivedPlaylistWidgets, "Received Playlist"));
+        child: listOnly(mockReceivedPlaylistWidgets));
 
     return Scaffold(
         backgroundColor: Colors.transparent,

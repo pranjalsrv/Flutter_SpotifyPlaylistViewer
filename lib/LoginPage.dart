@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'LoginPageBackground.dart';
+import 'AnimatedBackground.dart';
 import 'LoginWebviewMaker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'PlaylistsPage.dart';
@@ -21,9 +21,10 @@ class _LoginPageState extends State<LoginPage> {
   _loginTrial() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      prefs.setString("refresh_token", "0");
       refresh_token = (prefs.getString('refresh_token') ?? "0");
       print("refresh_token searched in persistent memory");
+      prefs.setString(
+          'refresh_token', "Mock refresh_token for debugging purposes");
     });
 
     if (refresh_token == "0") {
@@ -34,10 +35,9 @@ class _LoginPageState extends State<LoginPage> {
       );
     } else {
       print("refresh_token recieved from persistent memory");
-      print(refresh_token);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => AddUserPage()),
+        MaterialPageRoute(builder: (context) => PlaylistPage()),
       );
     }
   }

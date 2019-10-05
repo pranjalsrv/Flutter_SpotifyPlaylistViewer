@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:spotify_starter/LoginPageBackground.dart';
+import 'package:spotify_starter/AnimatedBackground.dart';
 import 'package:flutter/services.dart';
+import 'MergeOrAddMusicSelectionPage.dart';
 
 //class CollabButton extends StatefulWidget {
 //  @override
@@ -40,6 +41,10 @@ class _CreatePlaylistPage extends State<CreatePlaylistPage> {
   var _collab = true;
   var _public = true;
 
+  final _playlistNameEntryController = TextEditingController();
+  final _descriptionEntryController = TextEditingController();
+  bool _validate = false;
+
   @override
   void initState() {
     super.initState();
@@ -50,17 +55,6 @@ class _CreatePlaylistPage extends State<CreatePlaylistPage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget createPlaylistFAB = Container(
-        width: MediaQuery.of(context).size.width * .70,
-        height: 65,
-        child: FloatingActionButton.extended(
-          heroTag: "createPlaylistFAB",
-          elevation: 10,
-          onPressed: () {},
-          icon: Icon(Icons.add),
-          label: Text("Create"),
-        ));
-
     final colabRadio = Container(
         margin: EdgeInsets.only(top: 30),
         child: Row(
@@ -90,7 +84,6 @@ class _CreatePlaylistPage extends State<CreatePlaylistPage> {
             ),
           ],
         ));
-
     final publicRadio = Container(
         margin: EdgeInsets.only(top: 30),
         child: Row(
@@ -124,60 +117,91 @@ class _CreatePlaylistPage extends State<CreatePlaylistPage> {
     final playlistNameEntry = Container(
         margin: EdgeInsets.only(left: 10, right: 10),
         height: MediaQuery.of(context).size.height * .20,
-        child: TextField(
-          decoration: InputDecoration(labelText: "Playlist Name"),
-          cursorColor: Colors.green,
-          style: TextStyle(color: Colors.white, fontSize: 55),
-        ));
-
-    final playlistDescriptionEntry = Container(
-        margin: EdgeInsets.only(left: 10, right: 10),
-        height: MediaQuery.of(context).size.height * .15,
-        child: TextField(
-          decoration: InputDecoration(labelText: "Description"),
-          cursorColor: Colors.green,
-          style: TextStyle(color: Colors.white, fontSize: 45),
-        ));
-
-    final playlistPageBackButton = Container(
-        margin: EdgeInsets.only(top: 40, left: 20),
-        child: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
+        child: Hero(
+            tag: "PlaylistName",
+            child: TextField(
+              controller: _playlistNameEntryController,
+              decoration: InputDecoration(
+                  labelText: "Playlist Name",
+                  errorText: _validate ? "Can\'t be left empty" : null),
+              cursorColor: Colors.green,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 50,
+                decoration: TextDecoration.none,
+                fontFamily: "Roboto",
+              ),
             )));
 
-    final createPlaylistButton = Container(
-        margin: EdgeInsets.only(
-            top: MediaQuery.of(context).size.height * .88,
-            left: MediaQuery.of(context).size.height * .13),
-        height: 65,
-        width: 250,
-        child: RaisedButton(
-            shape: new RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(30.0)),
-            color: Colors.green,
-            elevation: 10,
-            onPressed: () {},
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Container(
-                  margin: EdgeInsets.only(right: 8), child: Icon(Icons.check)),
-              Text(
-                "Create",
-                style: TextStyle(fontSize: 20),
-              )
-            ])));
+    final playlistDescriptionEntry = Hero(
+        tag: "description",
+        child: Container(
+            margin: EdgeInsets.only(left: 10, right: 10),
+            height: MediaQuery.of(context).size.height * .15,
+            child: TextField(
+              controller: _descriptionEntryController,
+              decoration: InputDecoration(labelText: "Description"),
+              cursorColor: Colors.green,
+              style: TextStyle(color: Colors.green, fontSize: 50),
+            )));
 
-    return Hero(
+    final appbar = AppBar(
+      backgroundColor: Colors.transparent,
+    );
+
+    final createPlaylistButton = Hero(
         tag: "FAB",
+        child: Container(
+            margin: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height - 100,
+                left: MediaQuery.of(context).size.width - 350),
+            height: 65,
+            width: MediaQuery.of(context).size.width * .70,
+            child: RaisedButton(
+                shape: new RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.circular(30.0)),
+                color: Colors.green,
+                elevation: 10,
+                onPressed: () {
+                  setState(() {
+                    ///TODO: API call validation
+
+                    _playlistNameEntryController.text.isEmpty
+                        ? _validate = true
+                        : _validate = false;
+
+                    if (_validate == false) {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MergeOrAddMusic(
+                                  playlistName:
+                                      _playlistNameEntryController.text,
+                                  description:
+                                      _descriptionEntryController.text)));
+                    }
+                  });
+                },
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Container(
+                      margin: EdgeInsets.only(right: 8),
+                      child: Icon(
+                        Icons.check,
+                        color: Colors.white,
+                      )),
+                  Text(
+                    "Create",
+                    style: TextStyle(fontSize: 20, color: Colors.white),
+                  )
+                ]))));
+
+    return Material(
         child: Scaffold(
-            resizeToAvoidBottomInset: false,
+            resizeToAvoidBottomInset: true,
             body: Stack(children: [
               AnimatedBackground(),
-              playlistPageBackButton,
+              appbar,
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
