@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       routes: <String, WidgetBuilder>{
         '/LoginPage': (BuildContext context) => new LoginPage(),
-        '/PlaylistPage': (BuildContext context) => new AddUserPage(),
+        '/PlaylistPage': (BuildContext context) => new PlaylistPage(),
       },
       title: 'Spotify Starter',
       debugShowCheckedModeBanner: false,
