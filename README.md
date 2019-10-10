@@ -8,6 +8,9 @@ All the values used are placeholders, since connecting to the Spotify Web API us
 
 Would love to complete it, but between completing personal projects and academic workload, I somehow always choose the latter.
 
-To watch the demo:
 
+## Demo:
+![spotify_starter gif](/demo/demo.gif)
+
+### To watch the demo in video format:
 https://drive.google.com/open?id=1Rskk4JWW_UygoAkCR0_MLO6mzAPtz8Yp
